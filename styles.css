@@ -156,46 +156,13 @@ h3 { margin: 0 0 10px; color: var(--forest); }
   background: linear-gradient(180deg, var(--cream), #f3eadf);
 }
 .instagram-heading { align-items: center; }
-.instagram-grid {
-  display: grid;
-  grid-template-columns: 1.15fr .85fr .85fr;
-  gap: 18px;
-}
-.instagram-card {
-  position: relative;
+.instagram-widget {
   min-height: 360px;
-  overflow: hidden;
+  padding: clamp(18px, 3vw, 34px);
+  border: 1px solid rgba(35,55,43,.08);
   border-radius: 30px;
-  display: flex;
-  align-items: end;
-  padding: 24px;
-  box-shadow: 0 18px 46px rgba(24,32,25,.12);
-  isolation: isolate;
-}
-.instagram-card.tall { min-height: 460px; }
-.instagram-card img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform .35s ease;
-  z-index: -2;
-}
-.instagram-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 35%, rgba(24,32,25,.72));
-  z-index: -1;
-}
-.instagram-card:hover img { transform: scale(1.04); }
-.instagram-card span {
-  color: var(--white);
-  font-weight: 800;
-  font-size: clamp(18px, 2vw, 24px);
-  line-height: 1.2;
-  max-width: 360px;
+  background: var(--white);
+  box-shadow: 0 18px 46px rgba(24,32,25,.10);
 }
 .instagram-note {
   margin: 18px 0 0;
@@ -231,7 +198,7 @@ footer strong { color: var(--forest); }
   .hero { grid-template-columns: 1fr; }
   .hero-card { min-height: 360px; }
   .hero-photo { height: 360px; }
-  .cards, .features, .instagram-grid { grid-template-columns: 1fr; }
-  .instagram-card, .instagram-card.tall { min-height: 340px; }
+  .cards, .features { grid-template-columns: 1fr; }
+  .instagram-widget { min-height: 320px; }
   .section-heading { display: block; }
 }
