@@ -115,20 +115,21 @@
         <script src="https://elfsightcdn.com/platform.js" async></script>
         <div class="elfsight-app-8d2240a3-c603-400a-a32c-e1fd65076a50" data-elfsight-app-lazy></div>
         <script>
-          window.addEventListener('load', function () {
+          (function () {
             var widgetId = '8d2240a3-c603-400a-a32c-e1fd65076a50';
             var attempts = 0;
             function bootElfsight() {
               if (window.eapps && window.eapps.platform) {
                 window.eapps.platform.requireWidget(widgetId);
+                window.eapps.platform.resetWidget(widgetId);
                 window.eapps.platform.initialize();
-              } else if (attempts < 20) {
+              } else if (attempts < 60) {
                 attempts += 1;
                 window.setTimeout(bootElfsight, 500);
               }
             }
             bootElfsight();
-          });
+          })();
         </script>
       </div>
       <p class="instagram-note">Feed automático conectado ao @vista.temporada via Elfsight. Se o widget não carregar, acesse o Instagram pelo botão acima.</p>
