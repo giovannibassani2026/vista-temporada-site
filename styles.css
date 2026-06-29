@@ -140,6 +140,7 @@ h3 { margin: 0 0 10px; color: var(--forest); }
 }
 .card p, .features p, .location p, .cta p { color: var(--muted); line-height: 1.65; }
 .card ul { padding-left: 18px; color: var(--muted); }
+.card-button { margin-top: 8px; }
 
 .experience { background: var(--forest); color: var(--cream); }
 .experience h2, .experience h3 { color: var(--cream); }
