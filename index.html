@@ -205,6 +205,10 @@
     const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
     const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
+    function toKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
     async function loadAvailabilityData() {
       const response = await fetch('data/availability.json', { cache: 'no-store' });
       if (!response.ok) throw new Error('Não foi possível carregar a disponibilidade.');
