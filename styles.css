@@ -180,6 +180,8 @@ h3 { margin: 0 0 10px; color: var(--forest); }
 .cta {
   background: var(--sage);
   border-radius: 38px;
+  padding-top: clamp(42px, 6vw, 72px);
+  padding-bottom: clamp(42px, 6vw, 72px);
   margin-bottom: 80px;
 }
 
