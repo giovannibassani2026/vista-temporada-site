@@ -64,7 +64,27 @@
             <li>Ambiente aconchegante</li>
             <li>Reserva via Airbnb</li>
           </ul>
-          <a class="button primary card-button" href="https://www.airbnb.com.br/rooms/1126835995623353888?source_impression_id=p3_1782775809_P3oQQckG4ucNKvCX" target="_blank" rel="noopener">Reservar</a>
+          <div class="booking-row">
+            <a class="button primary card-button" href="https://www.airbnb.com.br/rooms/1094118056401827943" target="_blank" rel="noopener">Reservar</a>
+            <div class="availability-card" data-studio="Studio A" data-airbnb-ical="https://www.airbnb.com.br/calendar/ical/1094118056401827943.ics?t=754898d6a7cc4d478356ff128975076c">
+              <div class="availability-header">
+                <div>
+                  <span class="availability-label">Disponibilidade</span>
+                  <strong class="availability-month">Carregando...</strong>
+                </div>
+                <div class="availability-controls" aria-label="Navegar calendário">
+                  <button type="button" class="calendar-prev" aria-label="Mês anterior">‹</button>
+                  <button type="button" class="calendar-next" aria-label="Próximo mês">›</button>
+                </div>
+              </div>
+              <div class="calendar-grid" aria-label="Calendário de disponibilidade do Studio A"></div>
+              <div class="calendar-legend">
+                <span><i class="available"></i> Disponível</span>
+                <span><i class="blocked"></i> Ocupado</span>
+              </div>
+              <p class="calendar-status">Pronto para conectar ao calendário do Airbnb.</p>
+            </div>
+          </div>
         </article>
         <article class="card">
           <img class="card-image" src="assets/studio-2.jpg" alt="Studio B com hidromassagem, varanda e vista panorâmica" />
@@ -75,7 +95,27 @@
             <li>Espaço instagramável</li>
             <li>Perfeito para relaxar</li>
           </ul>
-          <a class="button primary card-button" href="https://www.airbnb.com.br/rooms/1094118056401827943?source_impression_id=p3_1782775848_P3uGElukXe7Nomww" target="_blank" rel="noopener">Reservar</a>
+          <div class="booking-row">
+            <a class="button primary card-button" href="https://www.airbnb.com.br/rooms/1126835995623353888" target="_blank" rel="noopener">Reservar</a>
+            <div class="availability-card" data-studio="Studio B" data-airbnb-ical="https://www.airbnb.com.br/calendar/ical/1126835995623353888.ics?t=ca52ea1bbd954e04adaa9bb2e8a17a02">
+              <div class="availability-header">
+                <div>
+                  <span class="availability-label">Disponibilidade</span>
+                  <strong class="availability-month">Carregando...</strong>
+                </div>
+                <div class="availability-controls" aria-label="Navegar calendário">
+                  <button type="button" class="calendar-prev" aria-label="Mês anterior">‹</button>
+                  <button type="button" class="calendar-next" aria-label="Próximo mês">›</button>
+                </div>
+              </div>
+              <div class="calendar-grid" aria-label="Calendário de disponibilidade do Studio B"></div>
+              <div class="calendar-legend">
+                <span><i class="available"></i> Disponível</span>
+                <span><i class="blocked"></i> Ocupado</span>
+              </div>
+              <p class="calendar-status">Pronto para conectar ao calendário do Airbnb.</p>
+            </div>
+          </div>
         </article>
       </div>
     </section>
@@ -161,5 +201,121 @@
     <span>Airbnb na Serra Gaúcha</span>
     <a href="https://www.instagram.com/vista.temporada/" target="_blank" rel="noopener">@vista.temporada</a>
   </footer>
+  <script>
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+
+    function parseIcalDate(value) {
+      const clean = value.replace(/[^0-9]/g, '');
+      if (clean.length < 8) return null;
+      const year = Number(clean.slice(0, 4));
+      const month = Number(clean.slice(4, 6)) - 1;
+      const day = Number(clean.slice(6, 8));
+      return new Date(year, month, day);
+    }
+
+    function eachDate(start, end, callback) {
+      const current = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const limit = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      while (current < limit) {
+        callback(current);
+        current.setDate(current.getDate() + 1);
+      }
+    }
+
+    function toKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function blockedDatesFromIcal(text) {
+      const blocked = new Set();
+      const normalized = text.replace(/\r?\n[ \t]/g, '');
+      const events = normalized.split('BEGIN:VEVENT').slice(1);
+      events.forEach(event => {
+        const startMatch = event.match(/DTSTART(?:;VALUE=DATE)?[^:]*:(.+)/);
+        const endMatch = event.match(/DTEND(?:;VALUE=DATE)?[^:]*:(.+)/);
+        if (!startMatch || !endMatch) return;
+        const start = parseIcalDate(startMatch[1]);
+        const end = parseIcalDate(endMatch[1]);
+        if (!start || !end) return;
+        eachDate(start, end, date => blocked.add(toKey(date)));
+      });
+      return blocked;
+    }
+
+    async function loadAirbnbCalendar(url) {
+      if (!url) return { blocked: new Set(), connected: false };
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Não foi possível carregar o calendário.');
+      const text = await response.text();
+      return { blocked: blockedDatesFromIcal(text), connected: true };
+    }
+
+    function renderCalendar(card, state) {
+      const grid = card.querySelector('.calendar-grid');
+      const label = card.querySelector('.availability-month');
+      const status = card.querySelector('.calendar-status');
+      const year = state.month.getFullYear();
+      const month = state.month.getMonth();
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const today = new Date();
+      label.textContent = `${monthNames[month]} ${year}`;
+      grid.innerHTML = '';
+
+      weekDays.forEach(day => {
+        const el = document.createElement('span');
+        el.className = 'calendar-weekday';
+        el.textContent = day;
+        grid.appendChild(el);
+      });
+
+      for (let i = 0; i < first.getDay(); i += 1) {
+        const blank = document.createElement('span');
+        blank.className = 'calendar-day blank';
+        grid.appendChild(blank);
+      }
+
+      for (let day = 1; day <= last.getDate(); day += 1) {
+        const date = new Date(year, month, day);
+        const key = toKey(date);
+        const el = document.createElement('span');
+        const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const isBlocked = state.blocked.has(key);
+        el.className = `calendar-day ${isBlocked || isPast ? 'is-blocked' : 'is-available'}`;
+        el.textContent = day;
+        el.title = isBlocked || isPast ? 'Indisponível' : 'Disponível para consulta';
+        grid.appendChild(el);
+      }
+
+      status.textContent = state.connected
+        ? 'Disponibilidade sincronizada com o calendário do Airbnb.'
+        : 'Calendário visual pronto. Falta inserir o link iCal do Airbnb para marcar datas ocupadas automaticamente.';
+    }
+
+    document.querySelectorAll('.availability-card').forEach(async card => {
+      const state = { month: new Date(new Date().getFullYear(), new Date().getMonth(), 1), blocked: new Set(), connected: false };
+      renderCalendar(card, state);
+
+      card.querySelector('.calendar-prev').addEventListener('click', () => {
+        state.month.setMonth(state.month.getMonth() - 1);
+        renderCalendar(card, state);
+      });
+
+      card.querySelector('.calendar-next').addEventListener('click', () => {
+        state.month.setMonth(state.month.getMonth() + 1);
+        renderCalendar(card, state);
+      });
+
+      try {
+        const loaded = await loadAirbnbCalendar(card.dataset.airbnbIcal);
+        state.blocked = loaded.blocked;
+        state.connected = loaded.connected;
+        renderCalendar(card, state);
+      } catch (error) {
+        card.querySelector('.calendar-status').textContent = 'Não foi possível sincronizar automaticamente. Verificar CORS/proxy ou link iCal.';
+      }
+    });
+  </script>
 </body>
 </html>
